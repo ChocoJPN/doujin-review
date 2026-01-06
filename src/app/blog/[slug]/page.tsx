@@ -1,0 +1,54 @@
+import { getPostBySlug, getAllPosts } from '@/lib/posts';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import styles from './page.module.css';
+import { notFound } from 'next/navigation';
+
+export async function generateStaticParams() {
+    const posts = getAllPosts();
+    return posts.map((post) => ({
+        slug: post.slug,
+    }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const post = getPostBySlug(slug);
+    if (!post) {
+        return {
+            title: '記事が見つかりません',
+        };
+    }
+    return {
+        title: `${post.title} | 世の中に同人誌を広めたい`,
+        description: post.excerpt,
+    };
+}
+
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const post = getPostBySlug(slug);
+
+
+    if (!post) {
+        notFound();
+    }
+
+    return (
+        <article className={styles.article}>
+            <header className={styles.header}>
+                <div className={styles.meta}>
+                    <time dateTime={post.date}>{post.date}</time>
+                    <span className={styles.rating}>★ {post.rating}</span>
+                </div>
+                <h1 className={styles.title}>{post.title}</h1>
+                {post.thumbnail && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={post.thumbnail} alt={post.title} className={styles.thumbnail} />
+                )}
+            </header>
+            <div className={styles.content}>
+                <MDXRemote source={post.content} />
+            </div>
+        </article>
+    );
+}
