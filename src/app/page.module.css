@@ -9,24 +9,50 @@
 }
 
 .heroTitle {
-  font-size: 3.5rem;
+  font-family: var(--font-shippori-mincho), serif;
+  font-size: 4rem;
   font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(to right, #333, #666);
+  line-height: 1.3;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-
-  padding-bottom: 0.2em;
-  /* 字の下切れ防止 */
+  padding-bottom: 0.1em;
+  letter-spacing: 0.05em;
+  animation: fadeInUp 1s ease-out;
 }
 
 .heroSubtitle {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   color: #666;
   max-width: 600px;
   margin: 0 auto;
+  letter-spacing: 0.05em;
+  animation: fadeInUp 1.2s ease-out;
+}
+
+:global([data-theme='gray']) .heroTitle {
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:global([data-theme='gray']) .heroSubtitle {
+  color: #a0a0a0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .sectionTitle {

@@ -31,10 +31,7 @@
     font-weight: 800;
     line-height: 1.3;
     margin-bottom: 2rem;
-    background: linear-gradient(to right, #333, #555);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #333;
 }
 
 .thumbnail {
@@ -96,4 +93,18 @@
     .title {
         font-size: 1.8rem;
     }
+}
+
+.actions {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.views {
+    font-size: 0.9rem;
+    color: #888;
+    margin-left: 1rem;
 }

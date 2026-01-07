@@ -10,8 +10,10 @@ export type Post = {
     date: string;
     rating: number; // 5段階評価
     thumbnail: string; // 画像パス
+    thumbnailPosition?: string; // 画像の表示位置 (object-position)
     excerpt: string; // 抜粋
     content: string; // 本文
+    tags: string[]; // ジャンル・属性
 };
 
 // 全記事を取得（日付降順）
@@ -41,7 +43,9 @@ export function getAllPosts(): Post[] {
                 date: data.date ?? new Date().toISOString(),
                 rating: data.rating ?? 0,
                 thumbnail: data.thumbnail ?? '',
+                thumbnailPosition: data.thumbnailPosition,
                 excerpt: data.excerpt ?? '',
+                tags: data.tags ?? [],
             };
         });
 
@@ -71,7 +75,9 @@ export function getPostBySlug(slug: string): Post | null {
             date: data.date ?? new Date().toISOString(),
             rating: data.rating ?? 0,
             thumbnail: data.thumbnail ?? '',
+            thumbnailPosition: data.thumbnailPosition,
             excerpt: data.excerpt ?? '',
+            tags: data.tags ?? [],
         };
     } catch (error) {
         return null;

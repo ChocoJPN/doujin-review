@@ -1,6 +1,5 @@
-import Image from "next/image";
 import { getAllPosts } from '@/lib/posts';
-import ReviewCard from '@/components/ReviewCard';
+import SearchablePostList from '@/components/SearchablePostList';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -20,11 +19,7 @@ export default function Home() {
 
       <section className={styles.latestReviews}>
         <h2 className={styles.sectionTitle}>新着レビュー</h2>
-        <div className={styles.grid}>
-          {posts.map((post) => (
-            <ReviewCard key={post.slug} post={post} />
-          ))}
-        </div>
+        <SearchablePostList initialPosts={posts} />
       </section>
     </div>
   );

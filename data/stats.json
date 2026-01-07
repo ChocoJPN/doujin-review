@@ -1,0 +1,22 @@
+{
+  "sample-post": {
+    "views": 8,
+    "likes": 1
+  },
+  "rio2": {
+    "views": 26,
+    "likes": 0
+  },
+  "rio": {
+    "views": 37,
+    "likes": 1
+  },
+  "asuna-toki": {
+    "views": 22,
+    "likes": 7
+  },
+  "yuka": {
+    "views": 14,
+    "likes": 0
+  }
+}

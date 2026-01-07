@@ -1,0 +1,78 @@
+.controls {
+    margin-bottom: 2.5rem;
+    position: sticky;
+    top: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.tabs {
+    display: flex;
+    background: white;
+    padding: 6px;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+}
+
+.tab {
+    padding: 10px 24px;
+    border-radius: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.activeTab {
+    background: #ff416c;
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 65, 108, 0.3);
+}
+
+.searchWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.searchInput {
+    width: 100%;
+    max-width: 600px;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid #eee;
+    border-radius: 50px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+}
+
+.searchInput:focus {
+    border-color: #ff416c;
+    box-shadow: 0 8px 30px rgba(255, 65, 108, 0.2);
+    transform: translateY(-2px);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.noResults {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #888;
+    background: #f9f9f9;
+    border-radius: 16px;
+    border: 1px dashed #ccc;
+}

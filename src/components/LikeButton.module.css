@@ -1,0 +1,57 @@
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 2px solid #ff416c;
+    color: #ff416c;
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(255, 65, 108, 0.2);
+}
+
+.button:hover {
+    background: #fff0f3;
+    transform: scale(1.05);
+}
+
+.liked {
+    background: #ff416c;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+}
+
+.liked:hover {
+    background: #ff2d5b;
+}
+
+.button:active {
+    transform: scale(0.95);
+}
+
+.icon {
+    font-size: 1.4rem;
+}
+
+/* クリック時のアニメーション */
+.animating {
+    animation: pump 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pump {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.3);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
