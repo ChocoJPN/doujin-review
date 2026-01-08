@@ -10,9 +10,9 @@ export async function POST(request: Request) {
 
     let likes;
     if (action === 'decrement') {
-        likes = decrementLike(slug);
+        likes = await decrementLike(slug);
     } else {
-        likes = incrementLike(slug);
+        likes = await incrementLike(slug);
     }
 
     return NextResponse.json({ likes });

@@ -8,6 +8,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
-    const views = incrementView(slug);
+    const views = await incrementView(slug);
     return NextResponse.json({ views });
 }
