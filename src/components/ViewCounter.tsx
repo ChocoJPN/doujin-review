@@ -18,13 +18,13 @@ export default function ViewCounter({ slug, onViewCountUpdate }: ViewCounterProp
 
         const incrementView = async () => {
             try {
-                // sessionStorageから閲覧済み記事のリストを取得 (ブラウザを閉じればリセットされる)
-                const viewedPostsStr = sessionStorage.getItem(VIEWED_POSTS_KEY);
+                // localStorageから閲覧済み記事のリストを取得 (端末に保存される)
+                const viewedPostsStr = localStorage.getItem(VIEWED_POSTS_KEY);
                 const viewedPosts: string[] = viewedPostsStr ? JSON.parse(viewedPostsStr) : [];
 
-                // 既にこのセッションで閲覧済みの場合はカウントしない
+                // 既にこの端末で閲覧済みの場合はカウントしない
                 if (viewedPosts.includes(slug)) {
-                    console.log(`Already viewed ${slug} in this session.`);
+                    console.log(`Already viewed ${slug} on this device. Skipping increment.`);
                     return;
                 }
 
@@ -38,9 +38,9 @@ export default function ViewCounter({ slug, onViewCountUpdate }: ViewCounterProp
                 const data = await response.json();
                 console.log('View count response:', data);
 
-                // sessionStorageに閲覧済みとして記録
+                // localStorageに閲覧済みとして記録
                 viewedPosts.push(slug);
-                sessionStorage.setItem(VIEWED_POSTS_KEY, JSON.stringify(viewedPosts));
+                localStorage.setItem(VIEWED_POSTS_KEY, JSON.stringify(viewedPosts));
 
                 // 最新の閲覧数を親コンポーネントに通知 (0の場合も考慮して undefined チェックにする)
                 if (onViewCountUpdate && data.views !== undefined) {

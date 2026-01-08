@@ -8,7 +8,7 @@ function getSupabase() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    // 環境変数が未設定、あるいは文字列の "undefined" になっている場合のチェック
+    // 環境変数が未設定、あるいは文字列の "undefined" になっている場合の詳細チェック
     if (!url || !key || url === 'undefined' || key === 'undefined') {
         console.error('Supabase configuration is missing or invalid.', {
             url: url === 'undefined' ? 'string "undefined"' : url ? 'set' : 'missing',
@@ -36,7 +36,7 @@ export type PostStats = {
 export async function incrementView(slug: string): Promise<number> {
     const supabase = getSupabase();
     if (!supabase) {
-        console.warn('Supabase client is not initialized. Check your environment variables.');
+        console.warn('Supabase client is not initialized. View will not be saved.');
         return 0;
     }
 
@@ -54,7 +54,7 @@ export async function incrementView(slug: string): Promise<number> {
                 .upsert({
                     slug,
                     views: (stats.views || 0) + 1,
-                    likes: stats.likes || 0 // 既存のいいね数を保持
+                    likes: stats.likes || 0
                 }, { onConflict: 'slug' })
                 .select()
                 .single();
@@ -76,16 +76,12 @@ export async function incrementView(slug: string): Promise<number> {
 // いいねの加算
 export async function incrementLike(slug: string): Promise<number> {
     const supabase = getSupabase();
-    if (!supabase) {
-        console.warn('Supabase client is not initialized. Check your environment variables.');
-        return 0;
-    }
+    if (!supabase) return 0;
 
     const { data, error: rpcError } = await supabase.rpc('increment_like', { page_slug: slug });
 
     if (rpcError) {
-        console.error('RPC Error (increment_like):', rpcError.message);
-
+        console.warn('RPC increment_like failed, falling back to upsert');
         try {
             const stats = await getPostStats(slug);
             const { data: upsertData, error: upsertError } = await supabase
@@ -93,38 +89,28 @@ export async function incrementLike(slug: string): Promise<number> {
                 .upsert({
                     slug,
                     likes: (stats.likes || 0) + 1,
-                    views: stats.views || 0 // 既存の閲覧数を保持
+                    views: stats.views || 0
                 }, { onConflict: 'slug' })
                 .select()
                 .single();
 
-            if (upsertError) {
-                console.error('Upsert Fallback Error (increment_like):', upsertError.message);
-                return stats.likes;
-            }
+            if (upsertError) return stats.likes;
             return upsertData.likes;
         } catch (e) {
-            console.error('Critical Fallback Error (increment_like):', e);
             return 0;
         }
     }
-
     return data;
 }
 
 // いいねの減算
 export async function decrementLike(slug: string): Promise<number> {
     const supabase = getSupabase();
-    if (!supabase) {
-        console.warn('Supabase client is not initialized. Check your environment variables.');
-        return 0;
-    }
+    if (!supabase) return 0;
 
     const { data, error: rpcError } = await supabase.rpc('decrement_like', { page_slug: slug });
 
     if (rpcError) {
-        console.error('RPC Error (decrement_like):', rpcError.message);
-
         try {
             const stats = await getPostStats(slug);
             const { data: upsertData, error: upsertError } = await supabase
@@ -132,22 +118,17 @@ export async function decrementLike(slug: string): Promise<number> {
                 .upsert({
                     slug,
                     likes: Math.max(0, (stats.likes || 0) - 1),
-                    views: stats.views || 0 // 既存の閲覧数を保持
+                    views: stats.views || 0
                 }, { onConflict: 'slug' })
                 .select()
                 .single();
 
-            if (upsertError) {
-                console.error('Upsert Fallback Error (decrement_like):', upsertError.message);
-                return stats.likes;
-            }
+            if (upsertError) return stats.likes;
             return upsertData.likes;
         } catch (e) {
-            console.error('Critical Fallback Error (decrement_like):', e);
             return 0;
         }
     }
-
     return data;
 }
 
@@ -177,17 +158,13 @@ export async function getPostStats(slug: string): Promise<PostStats> {
 // 全記事のスタッツ取得
 export async function getAllStats(): Promise<Record<string, PostStats>> {
     const supabase = getSupabase();
-    if (!supabase) {
-        return {};
-    }
+    if (!supabase) return {};
 
     const { data, error } = await supabase
         .from('stats')
         .select('slug, views, likes');
 
-    if (error || !data) {
-        return {};
-    }
+    if (error || !data) return {};
 
     const stats: Record<string, PostStats> = {};
     data.forEach((item: any) => {
