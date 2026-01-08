@@ -1,13 +1,26 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+let _supabase: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase URL or Anon Key is missing. Check your .env.local file.');
+function getSupabase() {
+    if (_supabase) return _supabase;
+
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    // 環境変数が未設定、あるいは文字列の "undefined" になっている場合のチェック
+    if (!url || !key || url === 'undefined' || key === 'undefined') {
+        return null;
+    }
+
+    try {
+        _supabase = createClient(url, key);
+        return _supabase;
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+        return null;
+    }
 }
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type PostStats = {
     views: number;
@@ -16,6 +29,12 @@ export type PostStats = {
 
 // 閲覧数の加算
 export async function incrementView(slug: string): Promise<number> {
+    const supabase = getSupabase();
+    if (!supabase) {
+        console.warn('Supabase client is not initialized. Check your environment variables.');
+        return 0;
+    }
+
     const { data, error } = await supabase.rpc('increment_view', { page_slug: slug });
 
     if (error) {
@@ -37,6 +56,12 @@ export async function incrementView(slug: string): Promise<number> {
 
 // いいねの加算
 export async function incrementLike(slug: string): Promise<number> {
+    const supabase = getSupabase();
+    if (!supabase) {
+        console.warn('Supabase client is not initialized. Check your environment variables.');
+        return 0;
+    }
+
     const { data, error } = await supabase.rpc('increment_like', { page_slug: slug });
 
     if (error) {
@@ -58,6 +83,12 @@ export async function incrementLike(slug: string): Promise<number> {
 
 // いいねの減算
 export async function decrementLike(slug: string): Promise<number> {
+    const supabase = getSupabase();
+    if (!supabase) {
+        console.warn('Supabase client is not initialized. Check your environment variables.');
+        return 0;
+    }
+
     const { data, error } = await supabase.rpc('decrement_like', { page_slug: slug });
 
     if (error) {
@@ -79,6 +110,11 @@ export async function decrementLike(slug: string): Promise<number> {
 
 // 特定記事のスタッツ取得
 export async function getPostStats(slug: string): Promise<PostStats> {
+    const supabase = getSupabase();
+    if (!supabase) {
+        return { views: 0, likes: 0 };
+    }
+
     const { data, error } = await supabase
         .from('stats')
         .select('views, likes')
@@ -97,6 +133,11 @@ export async function getPostStats(slug: string): Promise<PostStats> {
 
 // 全記事のスタッツ取得
 export async function getAllStats(): Promise<Record<string, PostStats>> {
+    const supabase = getSupabase();
+    if (!supabase) {
+        return {};
+    }
+
     const { data, error } = await supabase
         .from('stats')
         .select('slug, views, likes');
