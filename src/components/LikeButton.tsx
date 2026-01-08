@@ -22,13 +22,14 @@ export default function LikeButton({ slug, initialLikes }: Props) {
     }, [slug]);
 
     const handleLike = async () => {
+        if (isAnimating) return; // 連続クリック防止
         setIsAnimating(true);
 
         const newIsLiked = !isLiked;
         setIsLiked(newIsLiked);
 
-        // 楽観的UI更新
-        setLikes((prev) => newIsLiked ? prev + 1 : prev - 1);
+        // 楽観的UI更新：0未満にならないように制限
+        setLikes((prev) => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
 
         // ローカルストレージ更新
         const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
@@ -40,7 +41,7 @@ export default function LikeButton({ slug, initialLikes }: Props) {
         localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
 
         try {
-            await fetch('/api/like', {
+            const response = await fetch('/api/like', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -48,11 +49,27 @@ export default function LikeButton({ slug, initialLikes }: Props) {
                     action: newIsLiked ? 'increment' : 'decrement'
                 }),
             });
+
+            if (!response.ok) throw new Error('Failed to update like');
+
+            const data = await response.json();
+            // サーバーからの最新のいいね数で同期
+            if (typeof data.likes === 'number') {
+                setLikes(data.likes);
+            }
         } catch (error) {
             console.error('Failed to update like:', error);
             // エラー時はロールバック
-            setLikes((prev) => newIsLiked ? prev - 1 : prev + 1);
+            setLikes((prev) => newIsLiked ? Math.max(0, prev - 1) : prev + 1);
             setIsLiked(!newIsLiked);
+
+            // ローカルストレージもロールバック
+            if (newIsLiked) {
+                delete likedPosts[slug];
+            } else {
+                likedPosts[slug] = true;
+            }
+            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
         }
 
         setTimeout(() => setIsAnimating(false), 500);
