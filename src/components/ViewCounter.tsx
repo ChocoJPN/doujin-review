@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 
-const VIEWED_POSTS_KEY = 'viewed_posts';
-
 type ViewCounterProps = {
     slug: string;
     onViewCountUpdate?: (views: number) => void;
@@ -18,13 +16,12 @@ export default function ViewCounter({ slug, onViewCountUpdate }: ViewCounterProp
 
         const incrementView = async () => {
             try {
-                // localStorageから閲覧済み記事のリストを取得 (端末に保存される)
-                const viewedPostsStr = localStorage.getItem(VIEWED_POSTS_KEY);
-                const viewedPosts: string[] = viewedPostsStr ? JSON.parse(viewedPostsStr) : [];
+                // Cookieから閲覧済みフラグを確認
+                const cookieName = `viewed_${slug}`;
+                const isViewed = document.cookie.split('; ').some(row => row.startsWith(`${cookieName}=`));
 
-                // 既にこの端末で閲覧済みの場合はカウントしない
-                if (viewedPosts.includes(slug)) {
-                    console.log(`Already viewed ${slug} on this device. Skipping increment.`);
+                if (isViewed) {
+                    console.log(`Already viewed ${slug} recently (cookie found). Skipping increment.`);
                     return;
                 }
 
@@ -35,15 +32,20 @@ export default function ViewCounter({ slug, onViewCountUpdate }: ViewCounterProp
                     body: JSON.stringify({ slug }),
                 });
 
+                if (!response.ok) {
+                    throw new Error('Failed to increment view');
+                }
+
                 const data = await response.json();
                 console.log('View count response:', data);
 
-                // localStorageに閲覧済みとして記録
-                viewedPosts.push(slug);
-                localStorage.setItem(VIEWED_POSTS_KEY, JSON.stringify(viewedPosts));
+                // Cookieに閲覧済みフラグをセット (24時間有効)
+                const expires = new Date();
+                expires.setHours(expires.getHours() + 24);
+                document.cookie = `${cookieName}=true; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
 
-                // 最新の閲覧数を親コンポーネントに通知 (0の場合も考慮して undefined チェックにする)
-                if (onViewCountUpdate && data.views !== undefined) {
+                // 最新の閲覧数を親コンポーネントに通知
+                if (onViewCountUpdate && typeof data.views === 'number') {
                     onViewCountUpdate(data.views);
                 }
             } catch (error) {
