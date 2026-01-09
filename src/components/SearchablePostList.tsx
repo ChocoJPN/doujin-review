@@ -21,14 +21,19 @@ export default function SearchablePostList({ initialPosts }: Props) {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('/api/stats');
+                const res = await fetch('/api/stats', { cache: 'no-store' });
                 const data = await res.json();
                 setStats(data);
             } catch (error) {
                 console.error('Failed to fetch stats:', error);
             }
         };
+
         fetchStats();
+
+        // ページに戻ってきたとき（フォーカス時）に最新データを取得
+        window.addEventListener('focus', fetchStats);
+        return () => window.removeEventListener('focus', fetchStats);
     }, []);
 
     // データのマージとフィルタリング

@@ -1,6 +1,8 @@
 import { getPostBySlug, getAllPosts } from '@/lib/posts';
 import { getPostStats } from '@/lib/db';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+
+export const dynamic = 'force-dynamic';
 import styles from './page.module.css';
 import { notFound } from 'next/navigation';
 import LikeButton from '@/components/LikeButton';

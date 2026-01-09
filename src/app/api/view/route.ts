@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { incrementView } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: Request) {
     const { slug } = await request.json();
@@ -9,5 +10,10 @@ export async function POST(request: Request) {
     }
 
     const views = await incrementView(slug);
+
+    // ホームと詳細記事のキャッシュを無効化
+    revalidatePath('/');
+    revalidatePath(`/blog/${slug}`);
+
     return NextResponse.json({ views });
 }
